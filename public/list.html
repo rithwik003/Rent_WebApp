@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Properties</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+      .property {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgb(215, 215, 215);
+            margin: auto;
+            width: 300px;
+        }
+
+
+        img {
+            max-width: 100%;
+          min-width:100%;
+            height: 300px;
+            border-radius: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+        #addPropertyButton {
+            background-color: #3498db;
+            margin-left:5%;
+        }
+
+        #addPropertyButton:hover {
+            background-color: #2980b9;
+        }
+      #propertyList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px;
+        }
+      #loginMessage{
+        color:red;
+        text-align:center;
+        display:none;
+      }
+      #addPropertyButton{
+        display:none;
+      }
+      
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Owner Properties</h1>
+</header>
+  <h2 id="loginMessage"><a href="login.html">Log in</a> to add a property</h2>
+<br>
+<button id="addPropertyButton" onclick="addPropertyForm()">Add Property</button>
+  
+<div id="propertyList">
+    
+</div>
+
+<script>
+    /*async function fetchOwnerProperties() {
+        try {
+            const response = await fetch('/owner-properties');
+            const properties = await response.json();
+            displayProperties(properties);
+        } catch (error) {
+            console.error('Error fetching owner properties:', error);
+        }
+    }*/
+  async function fetchOwnerProperties() {
+    try {
+        const response = await fetch('/owner-properties');
+        const properties = await response.json();
+        displayProperties(properties);
+
+        const responseUser = await fetch('/authenticated-user');
+        const userData = await responseUser.json();
+
+        const addPropertyButton = document.getElementById('addPropertyButton');
+        const loginMessage = document.getElementById('loginMessage');
+
+        if (userData.email) {
+            addPropertyButton.style.display = 'block';
+            loginMessage.style.display = 'none'; 
+        } else {
+            addPropertyButton.style.display = 'none';
+            loginMessage.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error fetching owner properties:', error);
+    }
+}
+
+  
+
+    function displayProperties(properties) {
+        const propertyList = document.getElementById('propertyList');
+        propertyList.innerHTML = '';
+
+        properties.forEach(property => {
+            const propertyElement = document.createElement('div');
+            propertyElement.className = 'property';
+
+            // Customize the propertyElement content as per your requirements
+            propertyElement.innerHTML = `
+                <img src="${property.image_url}" alt="Property Image"><br>
+                <strong>Name:</strong> ${property.name}<br>
+                <strong>Price:</strong> ₹${property.price}<br>
+                <strong>Location:</strong> ${property.location}<br>
+                <strong>Bedrooms:</strong> ${property.bedrooms}<br>
+                <strong>Bathrooms:</strong> ${property.bathrooms}<br>
+                <strong>Size:</strong> ${property.size} m²<br>
+                
+                <button onclick="editProperty('${property.name}', '${property.price}', '${property.location}', '${property.bedrooms}', '${property.bathrooms}', '${property.size}', '${property.image_url}')">Edit</button>
+
+                <button onclick="deleteProperty('${property.name}', '${property.price}', '${property.location}', '${property.bedrooms}', '${property.bathrooms}', '${property.size}', '${property.image_url}')">Delete</button>
+                <hr>
+            `;
+
+            propertyList.appendChild(propertyElement);
+        });
+    }
+
+    window.onload = fetchOwnerProperties;
+
+  
+  async function editProperty(name, price, location, bedrooms, bathrooms, size, imageUrl) {
+    const newName = prompt('Enter new name:', name);
+    const newPrice = prompt('Enter new price:', price);
+    const newLocation = prompt('Enter new location:', location);
+    const newBedrooms = prompt('Enter new number of bedrooms:', bedrooms);
+    const newBathrooms = prompt('Enter new number of bathrooms:', bathrooms);
+    const newSize = prompt('Enter new size:', size);
+    const newImageUrl = prompt('Enter new image URL:', imageUrl);
+
+    const response = await fetch('/update-property', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            oldName: name,
+            oldPrice: price,
+            oldLocation: location,
+            oldBedrooms: bedrooms,
+            oldBathrooms: bathrooms,
+            oldSize: size,
+            oldImageUrl: imageUrl,
+            newName,
+            newPrice,
+            newLocation,
+            newBedrooms,
+            newBathrooms,
+            newSize,
+            newImageUrl,
+        }),
+    });
+
+    if (response.ok) {
+        alert('Property updated successfully!');
+        fetchOwnerProperties(); // Refresh the property list after update
+    } else {
+        const responseBody = await response.json();
+        alert(`Failed to update property: ${responseBody.error}`);
+    }
+}
+
+async function deleteProperty(ownerName, monthlyRent, location, bedrooms, bathrooms, size, imageUrl) {
+        try {
+            const response = await fetch('/delete-property', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ownerName,
+                    monthlyRent,
+                    location,
+                    bedrooms,
+                    bathrooms,
+                    size,
+                    imageUrl,
+                }),
+            });
+
+            if (response.ok) {
+                alert('Property deleted successfully!');
+                fetchOwnerProperties(); // Refresh the property list after deletion
+            } else {
+                const responseBody = await response.json();
+                alert(`Failed to delete property: ${responseBody.error}`);
+            }
+        } catch (error) {
+            console.error('Error deleting property:', error);
+            alert('An error occurred. Please check the console for details.');
+        }
+    }
+
+    
+  function addPropertyForm() {
+        window.location.href = 'add.html';
+    }
+</script>
+
+</body>
+</html>
