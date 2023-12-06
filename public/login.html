@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        form {
+            margin: 40px;
+            padding: 20px;
+            background-color: rgb(215, 215, 215);
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            margin-left: 37%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>User Login</h1>
+</header>
+<br>
+<form id="loginForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit" onsubmit="login()">Login</button>
+</form>
+
+<script>
+    const loginForm = document.getElementById('loginForm');
+  
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const formData = new FormData(loginForm);
+      const responseData = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(Object.fromEntries(formData))
+      });
+      if (responseData.ok) {
+        //alert('Login successful!');
+        //loginForm.reset();
+        //showAppointmentPage();
+        const data = await responseData.json();
+
+    // Display the logged-in username and email in an alert
+    if (data.username && data.email) {
+      alert(`Logged in as: ${data.username} (${data.email})`);
+      window.location.href = 'list.html';
+    } else {
+      alert('Login failed');
+    }
+
+    loginForm.reset();
+    
+      } else {
+        alert('Invalid email or password.');
+      }
+    });
+</script>
+
+</body>
+</html>

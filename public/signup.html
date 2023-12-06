@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Signup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        form {
+            margin: 40px;
+            padding: 20px;
+            background-color: rgb(215, 215, 215);
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+          
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align:center;
+          margin-left:37%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>User Signup</h1>
+    </header>
+    <br>
+    <form id="signupForm" onsubmit="event.preventDefault(); signup();">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="contactNumber">Contact Number:</label>
+        <input type="text" id="contactNumber" name="contactNumber" required pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number">
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Signup</button>
+    </form>
+
+    <script>
+        async function signup() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const contactNumber = document.getElementById('contactNumber').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        contact_number: contactNumber,
+                        password,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('Signup successful!');
+                    window.location.href = 'login.html';
+                    // Redirect or perform other actions after successful signup
+                } else {
+                    const responseBody = await response.json();
+                    alert(`Failed to signup: ${responseBody.error}`);
+                }
+            } catch (error) {
+                console.error('Error during signup:', error);
+                alert('An error occurred. Please check the console for details.');
+            }
+        }
+    </script>
+
+</body>
+</html>

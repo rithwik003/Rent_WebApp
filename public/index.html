@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental Property Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        nav {
+            background-color: #bcbcbc;
+            overflow: hidden;
+            padding:10px;
+        }
+
+        nav a {
+            float: left;
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+          font-size:13px;
+        }
+
+        
+
+        form {
+            margin: 40px;
+            padding: 10px;
+            background-color: rgb(215, 215, 215);
+            border-radius: 10px;
+        }
+
+        .property-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px;
+        }
+      
+
+        .property {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgb(215, 215, 215);
+            margin: auto;
+            width: 300px;
+        }
+
+        /* Style for the price range slider */
+        input[type="range"] {
+            width: 20%;
+            margin-top: 10px;
+            cursor:pointer;
+        }
+
+        /* Style for displaying current slider value */
+        #priceValue {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+      .login{
+        float:right;
+        background-color:rgba(162,222,237,255);
+        border-radius:15px;
+        padding-left:25px;
+        padding-right:25px;
+        
+      }
+      .sign{
+        float:right;
+        background-color:rgba(209,239,247,255);
+        border-radius:15px;
+        padding-left:25px;
+        padding-right:25px;
+        margin-left:10px;
+        margin-right:20px;
+        cursor:pointer;
+      }
+      .login:hover,.sign:hover {
+            background-color: #ddd;
+            color: #333;
+          
+        }
+        .logo{
+            font-size:20px;
+            padding-top:10px;
+        }
+        .h1{
+            margin: 40px;
+            font-size:25px;
+        }
+        .apply{
+            background-color:rgba(122,126,238,255);
+        border-radius:15px;
+        padding-left:20px;
+        padding-right:20px;
+        font-size:17px;
+        border-color:rgba(122,126,238,255);
+        color:white;
+        padding-top:8px;
+        padding-bottom:8px;
+        border-width:0px;
+        cursor:pointer;
+        }
+      .apply:hover{
+        background-color: #fff;
+            color: #333;
+      }
+      .property img {
+        max-width: 100%;
+        min-width:100%;
+        height: 300px;
+        border-radius:10px;
+    }
+      .selector{
+        cursor:pointer;
+        border-radius:5px;
+        
+      }
+      #availableFrom{
+        cursor:pointer;
+        border-radius:5px;
+      }
+    </style>
+</head>
+<body>
+
+    
+
+    <nav>
+        <a class="logo"><b>LOGO</b></a>
+        <a href="index.html">Home</a>
+        <a class="sign" id="sign" ><b>Signup</b></a>
+        <a class ="login" href="login.html"><b>Login</b></a>
+        
+    </nav>
+    <h1 class="h1">Search Properties for Rent</h1>
+    <form id="searchForm">
+        <label for="city"><b>City:</b></label>
+        <select class="selector" id="city" name="city">
+            <option value="all">All Cities</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Delhi">Delhi</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Pune">Pune</option>
+        
+        </select>
+        &nbsp;|
+
+        <label for="availableFrom"><b>Available From:</b></label>
+        <input type="date" id="availableFrom" name="availableFrom">
+        &nbsp;|
+
+        
+        <label for="price"><b>Price Range:</b></label>
+        <input type="range" id="price" name="price" min="100" max="100000" value="100000" oninput="updatePriceValues()">
+        <span id="priceValue">₹100 - ₹100000</span>
+        &nbsp;|
+      
+      
+
+        <label for="propertyType"><b>Property Type:</b></label>
+        <select class="selector" id="propertyType" name="propertyType">
+            <option value="all">All Types</option>
+            <option value="apartment">Apartment</option>
+            <option value="house">House</option>
+            
+        </select>
+        &nbsp;|
+
+        <button class="apply" type="button" onclick="searchProperties()">Apply</button>
+    </form>
+
+    <div class="property-list" id="propertyList">    
+    </div>
+
+<script>
+    document.getElementById('sign').addEventListener('click', function () {
+        window.location.href = 'signup.html';
+    });
+
+    async function fetchAllProperties() {
+        try {
+            const response = await fetch('/all-properties');
+            const properties = await response.json();
+            displayProperties(properties);
+        } catch (error) {
+            console.error('Error fetching properties:', error);
+        }
+    }
+  
+  window.onload=fetchAllProperties;
+  
+function displayProperties(properties) {
+    const propertyList = document.getElementById('propertyList');
+    propertyList.innerHTML = '';
+
+    properties.forEach(property => {
+        const propertyElement = document.createElement('div');
+        propertyElement.className = 'property';
+//alert(property.image_url);
+        propertyElement.innerHTML = `
+            <img src="${property.image_url}" alt="Property Image"><br>
+            <strong>Name:</strong> ${property.owner_name}<br>
+            <strong>Price:</strong> ₹${property.monthly_rent} /month<br>
+            <strong>Location:</strong> ${property.location}<br>
+            <strong>Bedrooms:</strong> ${property.bedrooms}<br>
+            <strong>Bathrooms:</strong> ${property.bathrooms}<br>
+            <strong>Size:</strong> ${property.size} m²
+        `;
+
+        propertyList.appendChild(propertyElement);
+    });
+}
+
+  
+  async function searchProperties() {
+    const city = document.getElementById('city').value;
+    //alert(city);
+    const availableFrom = document.getElementById('availableFrom').value;
+    //alert(availableFrom);
+    const price = document.getElementById('price').value;
+    //alert(price);
+    const propertyType = document.getElementById('propertyType').value;
+    //alert(propertyType);
+    
+    try {
+        const response = await fetch(`/list-properties?city=${city}&availableFrom=${availableFrom}&price=${price}&propertyType=${propertyType}`);
+        const filteredProperties = await response.json();
+        displayProperties(filteredProperties);
+    } catch (error) {
+        console.error('Error fetching filtered properties:', error);
+    }
+}
+
+  
+
+    
+    function updatePriceValues() {
+        const priceSlider = document.getElementById('price');
+        const priceValue = document.getElementById('priceValue');
+        const minValue = priceSlider.min;
+        const maxValue = priceSlider.value;
+        priceValue.innerText = `₹${minValue} - ₹${maxValue}`;
+    }
+</script>
+
+
+</body>
+</html>

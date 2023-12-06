@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Property</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        form {
+            margin: 40px;
+            padding: 20px;
+            background-color: rgb(215, 215, 215);
+            border-radius: 10px;
+            width: 300px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            margin-left: 37%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+      #loginMessage{
+        color:red;
+        text-align:center;
+        display:none;
+      }
+      #addPropertyForm{
+        display:none;
+      }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Add Property</h1>
+</header>
+  <br>
+<h2 id="loginMessage"><a href="login.html">Log in</a> to add a property</h2>
+<br>
+<form id="addPropertyForm">
+    <label for="ownerName">Owner Name:</label>
+    <input type="text" id="ownerName" name="ownerName" required>
+
+    <label for="ownerEmail">Owner Email:</label>
+    <input type="email" id="ownerEmail" name="ownerEmail" required>
+
+    <label for="monthlyRent">Monthly Rent:</label>
+    <input type="number" id="monthlyRent" name="monthlyRent" required>
+
+    <label for="bedrooms">Bedrooms:</label>
+    <input type="number" id="bedrooms" name="bedrooms" required>
+
+    <label for="bathrooms">Bathrooms:</label>
+    <input type="number" id="bathrooms" name="bathrooms" required>
+
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" required>
+
+    <label for="size">Size(a×b)m²:</label>
+    <input type="text" id="size" name="size" required>
+
+    <label for="availableFrom">Available From:</label>
+    <input type="date" id="availableFrom" name="availableFrom" required>
+
+    <label for="propertyType">Property Type:</label>
+    <select id="propertyType" name="propertyType" required>
+        <option value="apartment">Apartment</option>
+        <option value="house">House</option>
+        <!-- Add more property types as needed -->
+    </select>
+
+    <label for="propertyImageUrl">Property Image URL:</label>
+    <input type="url" id="propertyImageUrl" name="propertyImageUrl">
+
+    <button type="button" onclick="addProperty()">Add Property</button>
+</form>
+
+<script>
+   async function checkAuthentication() {
+        try {
+            const responseUser = await fetch('/authenticated-user');
+            const userData = await responseUser.json();
+
+            const addProperty = document.getElementById('addPropertyForm');
+            const loginMessage = document.getElementById('loginMessage');
+
+            if (userData.email) {
+                addProperty.style.display = 'block';
+                loginMessage.style.display = 'none'; 
+            } else {
+                addProperty.style.display = 'none';
+                loginMessage.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error checking authentication:', error);
+        }
+    }
+
+    window.onload = checkAuthentication;
+  
+  
+  
+    async function addProperty() {
+    const ownerName = document.getElementById('ownerName').value;
+    const ownerEmail = document.getElementById('ownerEmail').value;
+    const monthlyRent = document.getElementById('monthlyRent').value;
+    const bedrooms = document.getElementById('bedrooms').value;
+    const bathrooms = document.getElementById('bathrooms').value;
+    const location = document.getElementById('location').value;
+    const size = document.getElementById('size').value;
+    const availableFrom = document.getElementById('availableFrom').value;
+    const propertyType = document.getElementById('propertyType').value;
+    const propertyImageUrl = document.getElementById('propertyImageUrl').value;
+
+    try {
+        const response = await fetch('/add-property', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ownerName,
+                ownerEmail,
+                monthlyRent,
+                bedrooms,
+                bathrooms,
+                location,
+                size,
+                availableFrom,
+                propertyType,
+                propertyImageUrl,
+            }),
+        });
+
+        if (response.ok) {
+            alert('Property added successfully!');
+            window.location.href = 'list.html';
+        } else {
+            const responseBody = await response.json();
+            alert(`Failed to add property: ${responseBody.error}`);
+        }
+    } catch (error) {
+        console.error('Error adding property:', error);
+        alert('An error occurred. Please check the console for details.');
+    }
+}
+
+</script>
+
+</body>
+</html>
